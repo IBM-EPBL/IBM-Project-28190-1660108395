@@ -1,0 +1,62 @@
+#IBM Watson IOT Platform
+#pip install wiotp-sdk
+import wiotp.sdk.device
+import time
+import random
+myConfig = {
+"identity": {
+"orgId": "rjt3pq",
+"typeId": "CheckingDeviceType",
+"deviceId":"26620"
+},
+"auth": {
+"token": ")jTAgpooTUE+vVYW4K"
+}
+}
+def myCommandCallback(cmd):
+print("Message received from IBM IoT Platform: %s" % 
+cmd.data['command'])
+m=cmd.data['command']
+client = wiotp.sdk.device.DeviceClient(config=myConfig, 
+logHandlers=None)
+client.connect()
+while True:
+med="Paracetamol"
+med1="D Cold"
+myData={'medicine1':med, 'medicine2':med1}
+client.publishEvent(eventId="status", msgFormat="json", 
+data=myData, qos=0,
+onPublish=None)
+print("Published data Successfully: %s", myData)
+client.commandCallback = myCommandCallback
+time.sleep(2)
+client.disconnect()
+
+CODES IN NODE-RED : 
+1).var d = new Date();
+var utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+var offset = 5.5;
+newDate = new Date(utc +(3600000*offset));
+var n=newDate.toISOString()
+var date = n.slice(0,10)
+var time = n.slice(11,16)
+global.set('time',time)
+msg.payload=date+" "+time
+return msg;
+
+2).var d=msg.payload.date
+var t=msg.payload.time
+msg.payload = {
+    "_id":d+" "+t,
+    "name":msg.payload.name,
+}
+return msg;
+3).msg.payload = {
+    "date":"",
+    "time":""
+}
+return msg;
+
+4).msg.payload={"command" :msg.payload.name}
+return msg;
+
